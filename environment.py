@@ -1,4 +1,6 @@
 import random
+
+
 class GameModel():
   def __init__(self, filename, players = 6):
     with open(filename, "r") as file:
@@ -26,6 +28,27 @@ class GameModel():
     return validHints
   def guess(self, guessString : str):
     return guessString == self.answer 
+
+class GameModelEnv():
+  def __init__(self):
+    self.model = GameModel("words.txt", 6)
+    self.reward = 0
+  def reset(self):
+    self.model = GameModel("words.txt", 6)
+    self.observation = []
+    self.observation = ["test1", 'test2']
+    self.action_space = self.model.words.copy()
+    for observation in self.observation:
+      self.action_space.remove(observation)
+    return self.observation
+  def step(self, action):
+    if(self.model.guess(action)):
+      self.reward += 50
+    else:
+      self.reward -= 10
+  def actionMap(self):
+    return self.model.words
+
 def humanController(playerCount : int = 6):
   model : GameModel = GameModel("words.txt", playerCount)
   model.startGame()
