@@ -26,18 +26,14 @@ def find_cluster(target_word, clusters):
 
 # rank words by similarity for a given cluster
 # returns a list of words ranked by similarity (excluding the target) and the similarities for those words
-def rank_words(target_word, clusters, cluster_id):
+def rank_words(target_word, clusters, cluster_id, embeddings):
     list_of_words = clusters[cluster_id]
 
     # drop the target
     words = [word for word in list_of_words if word != target_word]
 
-    # embed the list of words
-    model = SentenceTransformer('all-MiniLM-L6-v2')
-    embeddings = model.encode(words, show_progress_bar=True)
-
     # get the embedding for the target word
-    target_embedding = model.encode([target_word])[0]
+    target_embedding = embeddings[target_word]
 
     # calculate cosine similarity
     similarities = [cosine_similarity(target_embedding, embedding) for embedding in embeddings]
@@ -75,3 +71,11 @@ def get_clue(target_word, clusters):
     clue = choose_clue(ranked_words, similarities, drop_pct=0.2)
     return clue
 
+# when there are multiple clue givers
+def get_n_clues(target_word, clusters, n):
+    clues = []
+    for i in range(n):
+        clues.append(get_clue(target_word, clusters))
+
+    # return no duplicates
+    return list(set(clues))

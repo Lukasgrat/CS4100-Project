@@ -10,7 +10,7 @@ import pandas as pd
 from environment import GameModelEnv, GameModel
 
 def doTheThing():
-	clusters = pd.read_pickle("cluster.pkl")
+	clusters = pd.read_pickle("../data/cluster.pkl")
 	
 
 

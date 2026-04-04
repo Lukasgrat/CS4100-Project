@@ -31,10 +31,10 @@ class GameModel():
 
 class GameModelEnv():
   def __init__(self):
-    self.model = GameModel("words.txt", 6)
+    self.model = GameModel("data/words.txt", 6)
     self.reward = 0
   def reset(self):
-    self.model = GameModel("words.txt", 6)
+    self.model = GameModel("data/words.txt", 6)
     self.observation = []
     self.observation = ["test1", 'test2']
     self.action_space = self.model.words.copy()
@@ -50,7 +50,7 @@ class GameModelEnv():
     return self.model.words
 
 def humanController(playerCount : int = 6):
-  model : GameModel = GameModel("words.txt", playerCount)
+  model : GameModel = GameModel("data/words.txt", playerCount)
   model.startGame()
   print("The word is: ", model.answer)
   for x in range(1, playerCount):
