@@ -7,7 +7,9 @@ import numpy as np
 def main():
     # load clusters.pkl
     print("Reading clusters")
+
     clusters = pd.read_pickle("data/cluster.pkl")
+    print(type(clusters))
     # load word embeddings
     embeddings = pd.read_pickle("data/embeddings.pkl")
 

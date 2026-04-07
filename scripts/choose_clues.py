@@ -20,20 +20,23 @@ def softmax(x):
 # getting the cluster id for the given word
 def find_cluster(target_word, clusters):
     print("Looking for word: ", target_word)
-    for cluster_id, words in clusters.iterrows():
-        print("Words :\n ", words)
-        if words.str.contains(target_word, regex=False).any():
+    for idx, row in clusters.iterrows():
+        print("Words :\n ", row['words'])
+        if target_word in row['words']:
             print("Found word")
-            return cluster_id
+            return row['cluster_id']
     return None
 
 # rank words by similarity for a given cluster
 # returns a list of words ranked by similarity (excluding the target) and the similarities for those words
 def rank_words(target_word, clusters, cluster_id, embeddings_df):
-    list_of_words = clusters[cluster_id]
+    row = clusters[clusters['cluster_id'] == cluster_id].iloc[0]
+    list_of_words = row['words']
 
     # drop the target
     words = [word for word in list_of_words if word != target_word]
+    if not words:
+        return [], []
 
     # get the embedding for the target word
     embedding_vector = embeddings_df[embeddings_df['word'] == target_word].drop(columns='word').values.flatten()
@@ -46,19 +49,24 @@ def rank_words(target_word, clusters, cluster_id, embeddings_df):
 
     # rank words by similarity
     ranked_words = [word for _, word in sorted(zip(similarities, words), reverse=True)]
+    ranked_similarities = sorted(similarities, reverse=True)
 
-    return ranked_words, sorted(similarities, reverse=True)
+    return ranked_words, ranked_similarities
 
 # choose the clues
 # given a list of potential words to choose, drop too similar words and softmax over the rest
 # and sample from that to choose the clue
 def choose_clue(ranked_words, similarities, drop_pct):
     # drop the top drop_pct% of words
-    num_to_drop = int(len(ranked_words) * drop_pct)
+    num_to_drop = max(int(len(ranked_words) * drop_pct), 0)
     remaining_words = ranked_words[num_to_drop:]
+    remaining_similarities = similarities[num_to_drop:]
+
+    if not remaining_words:
+        return None
 
     # softmax over similarities to get probabilities
-    probabilities = softmax(similarities[num_to_drop:])
+    probabilities = softmax(np.array(remaining_similarities))
 
     # sample from the distribution to choose a clue (k = 1 since only 1 word)
     clue = random.choices(remaining_words, weights=probabilities, k=1)[0]
