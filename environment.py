@@ -36,17 +36,16 @@ class GameModelEnv():
   def reset(self, clues: set[str]):
     self.model = GameModel("data/words.txt", 3)
     self.observation = clues
-    self.action_space = self.model.words.copy()
-    print("Observations: ", clues) 
+    self.action_space = self.model.words.copy() * 2
     for observation in self.observation:
-      print("Removing word ", observation )
       self.action_space.remove(observation)
     return self.observation
   def step(self, action):
     if(self.model.guess(action)):
-      self.reward += 50
+      return 50
     else:
-      self.reward -= 10
+      return -10
+
   def actionMap(self):
     return self.model.words
 

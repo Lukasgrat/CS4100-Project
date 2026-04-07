@@ -25,8 +25,11 @@ def hasObs(obs):
 	
 	'''
 	return hash(tuple(sorted(obs)))
-
-
+def hashAction(action, env : GameModelEnv):
+	for x in range(0, len(env.model.words)):
+		if(env.model.words[x] == action):
+			return x
+	return -1
 def Q_learning(clues : set[str], num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
 	"""
 	Run Q-learning algorithm for a specified number of episodes.
@@ -53,7 +56,7 @@ def Q_learning(clues : set[str], num_episodes=10000, gamma=0.9, epsilon=1, decay
 		in_completion_state = False
 		current_Observation = env.reset(clues)
 		total_reward = 0
-		hashed_state = hash(current_Observation)
+		hashed_state = hash(list(current_Observation).sort())
 		if hashed_state not in Q_table:
 			Q_table[hashed_state] = np.zeros(len(env.action_space))
 			updateNumber_Table[hashed_state] = np.zeros(len(env.action_space))
@@ -61,17 +64,15 @@ def Q_learning(clues : set[str], num_episodes=10000, gamma=0.9, epsilon=1, decay
 			action = np.argmax(Q_table[hashed_state])
 		else:
 			action = random.choice(env.action_space)
-		new_obs, new_reward, in_completion_state, _ = env.step(action)
+		new_reward = env.step(action)
 		total_reward += new_reward
-		η = 1 / (1 + updateNumber_Table[hashed_state][action])
-		hashed_obs = hash(new_obs)
-		if hashed_obs not in Q_table:
-			Q_table[hashed_obs] = np.zeros(len(env.action_space))
-			updateNumber_Table[hashed_obs] = np.zeros(len(env.action_space))
-		v = np.max(Q_table[hashed_obs])
-		Q_table[hashed_state][action] = (1 - η) * Q_table[hashed_state][action] + η * (new_reward + gamma * v)
-		updateNumber_Table[hashed_state][action] += 1
-		current_Observation = new_obs
+		η = 1 / (1 + updateNumber_Table[hashed_state][hashAction(action, env)])
+		if hashed_state not in Q_table:
+			Q_table[hashed_state] = np.zeros(len(env.action_space))
+			updateNumber_Table[hashed_state] = np.zeros(len(env.action_space))
+		v = np.max(Q_table[hashed_state])
+		Q_table[hashed_state][hashAction(action, env)] = (1 - η) * Q_table[hashed_state][hashAction(action, env)] + η * (new_reward + gamma * v)
+		updateNumber_Table[hashed_state][hashAction(action, env)] += 1
 
 		#Increase decay and add in the reward for the current episode
 		cur_epsilon *= decay_rate
