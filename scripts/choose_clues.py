@@ -29,17 +29,21 @@ def find_cluster(target_word, clusters):
 
 # rank words by similarity for a given cluster
 # returns a list of words ranked by similarity (excluding the target) and the similarities for those words
-def rank_words(target_word, clusters, cluster_id, embeddings):
+def rank_words(target_word, clusters, cluster_id, embeddings_df):
     list_of_words = clusters[cluster_id]
 
     # drop the target
     words = [word for word in list_of_words if word != target_word]
 
     # get the embedding for the target word
-    target_embedding = embeddings[target_word]
+    embedding_vector = embeddings_df[embeddings_df['word'] == target_word].drop(columns='word').values
+    embedding_vector = embedding_vector.reshape(1, -1)
 
-    # calculate cosine similarity
-    similarities = [cosine_similarity(target_embedding, embedding) for embedding in embeddings]
+    # get embeddings for the other words
+    other_embeddings = embeddings_df[embeddings_df['word'].isin(words)].drop(columns='word').values
+
+    # compute cosine similarity
+    similarities = cosine_similarity(embedding_vector, other_embeddings).flatten()
 
     # rank words by similarity
     ranked_words = [word for _, word in sorted(zip(similarities, words), reverse=True)]
