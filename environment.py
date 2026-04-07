@@ -37,7 +37,9 @@ class GameModelEnv():
     self.model = GameModel("data/words.txt", 3)
     self.observation = clues
     self.action_space = self.model.words.copy()
+    print("Observations: ", clues) 
     for observation in self.observation:
+      print("Removing word ", observation )
       self.action_space.remove(observation)
     return self.observation
   def step(self, action):
@@ -65,4 +67,3 @@ def humanController(playerCount : int = 6):
     print("Correct!")
   else:
     print("Incorrect, the actual answer was: ", model.answer)
-humanController(7)

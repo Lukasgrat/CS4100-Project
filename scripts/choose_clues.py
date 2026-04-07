@@ -19,8 +19,11 @@ def softmax(x):
 
 # getting the cluster id for the given word
 def find_cluster(target_word, clusters):
-    for cluster_id, words in clusters.items():
-        if target_word in words:
+    print("Looking for word: ", target_word)
+    for cluster_id, words in clusters.iterrows():
+        print("Words :\n ", words)
+        if words.str.contains(target_word, regex=False).any():
+            print("Found word")
             return cluster_id
     return None
 
@@ -60,22 +63,23 @@ def choose_clue(ranked_words, similarities, drop_pct):
     return clue
 
 # main function to get the clue for a given word
-def get_clue(target_word, clusters):
+def get_clue(target_word, clusters, embeddings):
     cluster_id = find_cluster(target_word, clusters)
     if cluster_id is None:
         # TODO
+        print("Invalid cluster_id")
         # might want to make this return a default clue later
         return None
 
-    ranked_words, similarities = rank_words(target_word, clusters, cluster_id)
+    ranked_words, similarities = rank_words(target_word, clusters, cluster_id, embeddings)
     clue = choose_clue(ranked_words, similarities, drop_pct=0.2)
     return clue
 
 # when there are multiple clue givers
-def get_n_clues(target_word, clusters, n):
+def get_n_clues(target_word, clusters, n, embeddings):
     clues = []
     for i in range(n):
-        clues.append(get_clue(target_word, clusters))
-
+        clues.append(get_clue(target_word, clusters, embeddings))
+    print("Obtained clues: ", clues)
     # return no duplicates
     return set(clues)

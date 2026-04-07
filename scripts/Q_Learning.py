@@ -4,11 +4,9 @@ import time
 import pickle
 import numpy as np
 from tqdm import tqdm
-from vis_gym import *
 import matplotlib.pyplot as plt
 import pandas as pd
 from environment import GameModelEnv, GameModel
-
 
 
 BOLD = '\033[1m'  # ANSI escape sequence for bold text
@@ -109,7 +107,7 @@ def conduct_evaluations(clues : set[str]):
 	Q_table = np.load(filename, allow_pickle=True)
 
 	EVAL_EPISODE_COUNT = 10000
-	for _ in tqdm(range(EVAL_EPISODE_COUNT)):
+	for ep_number in tqdm(range(EVAL_EPISODE_COUNT)):
 		obs, reward, done, info = env.reset(clues)
 		total_reward = 0
 		steps = 0
@@ -132,6 +130,7 @@ def conduct_evaluations(clues : set[str]):
 
 		rewards.append(total_reward)
 		total_steps += steps
+		tqdm.update(ep_number)
 
 	avg_reward = sum(rewards)/len(rewards)
 	return avg_reward

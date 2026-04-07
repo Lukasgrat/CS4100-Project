@@ -18,11 +18,11 @@ def main():
 
     # get n amount of clues (set) from the clue givers
     # assume 2 clue givers for now
-    clues = get_n_clues(target_word, clusters, 2)
+    clues = get_n_clues(target_word, clusters, 2, embeddings)
 
     # feed these clues into q learning clue guesser
     # keep track of rewards and metrics
-    Q_learning_main(True, clues=clues)
+    avg_reward = Q_learning_main(False, clues)
     
 
 if __name__  == "__main__":
