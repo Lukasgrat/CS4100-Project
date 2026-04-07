@@ -33,7 +33,7 @@ class GameModelEnv():
   def __init__(self):
     self.model = GameModel("data/words.txt", 6)
     self.reward = 0
-  def reset(self):
+  def reset(self, clues: list[str]):
     self.model = GameModel("data/words.txt", 6)
     self.observation = []
     self.observation = ["test1", 'test2']

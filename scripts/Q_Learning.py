@@ -32,7 +32,7 @@ def hasObs(obs):
 	return hash(tuple(sorted(obs)))
 
 
-def Q_learning(num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
+def Q_learning(clues : list[str], num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
 	"""
 	Run Q-learning algorithm for a specified number of episodes.
 
@@ -56,7 +56,7 @@ def Q_learning(num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
 		
 		#Reset for the next run
 		in_completion_state = False
-		current_Observation = env.reset()
+		current_Observation = env.reset(clues)
 		total_reward = 0
 		hashed_state = hash(current_Observation)
 		if hashed_state not in Q_table:
@@ -94,12 +94,6 @@ decay_rate = 0.9999995
 Run training if train_flag is set; otherwise, run evaluation using saved Q-table.
 '''
 
-if train_flag:
-	Q_table = Q_learning(num_episodes=num_episodes, gamma=0.9, epsilon=1, decay_rate=decay_rate) # Run Q-learning
-	# Save the Q-table dict to a file
-	with open('Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle', 'wb') as handle:
-		pickle.dump(Q_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
-
 
 '''
 Evaluation mode: play episodes using the saved Q-table. Useful for debugging/visualization.
@@ -109,7 +103,7 @@ Based on autograder logic used to execute actions using uploaded Q-tables.
 def softmax(x, temp=1.0):
 	e_x = np.exp((x - np.max(x)) / temp)
 	return e_x / e_x.sum(axis=0)
-def conduct_evaluations():
+def conduct_evaluations(clues : list[str]):
 	rewards = []
 	# adding metrics to print
 	total_steps = 0
@@ -128,7 +122,7 @@ def conduct_evaluations():
 
 	EVAL_EPISODE_COUNT = 10000
 	for _ in tqdm(range(EVAL_EPISODE_COUNT)):
-		obs, reward, done, info = env.reset()
+		obs, reward, done, info = env.reset(clues)
 		total_reward = 0
 		steps = 0
 		
@@ -152,5 +146,11 @@ def conduct_evaluations():
 		total_steps += steps
 
 	avg_reward = sum(rewards)/len(rewards)
-if not train_flag:
-	conduct_evaluations()
+def Q_learning_main(train_flag: bool, clues : list[str]):
+	if not train_flag:
+		conduct_evaluations(clues)
+	if train_flag:
+		Q_table = Q_learning(clues, num_episodes=num_episodes, gamma=0.9, epsilon=1, decay_rate=decay_rate) # Run Q-learning
+		# Save the Q-table dict to a file
+		with open('Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle', 'wb') as handle:
+			pickle.dump(Q_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
