@@ -78,4 +78,4 @@ def get_n_clues(target_word, clusters, n):
         clues.append(get_clue(target_word, clusters))
 
     # return no duplicates
-    return list(set(clues))
+    return set(clues)
