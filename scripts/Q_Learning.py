@@ -9,9 +9,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from environment import GameModelEnv, GameModel
 
-def doTheThing():
-	clusters = pd.read_pickle("../data/cluster.pkl")
-	
 
 
 BOLD = '\033[1m'  # ANSI escape sequence for bold text
@@ -90,15 +87,6 @@ Specify number of episodes and decay rate for training and evaluation.
 num_episodes = 5000000
 decay_rate = 0.9999995
 
-'''
-Run training if train_flag is set; otherwise, run evaluation using saved Q-table.
-'''
-
-
-'''
-Evaluation mode: play episodes using the saved Q-table. Useful for debugging/visualization.
-Based on autograder logic used to execute actions using uploaded Q-tables.
-'''
 
 def softmax(x, temp=1.0):
 	e_x = np.exp((x - np.max(x)) / temp)
@@ -146,9 +134,10 @@ def conduct_evaluations(clues : set[str]):
 		total_steps += steps
 
 	avg_reward = sum(rewards)/len(rewards)
+	return avg_reward
 def Q_learning_main(train_flag: bool, clues : set[str]):
 	if not train_flag:
-		conduct_evaluations(clues)
+		return conduct_evaluations(clues)
 	if train_flag:
 		Q_table = Q_learning(clues, num_episodes=num_episodes, gamma=0.9, epsilon=1, decay_rate=decay_rate) # Run Q-learning
 		# Save the Q-table dict to a file

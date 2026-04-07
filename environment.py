@@ -31,10 +31,10 @@ class GameModel():
 
 class GameModelEnv():
   def __init__(self):
-    self.model = GameModel("data/words.txt", 6)
+    self.model = GameModel("data/words.txt", 3)
     self.reward = 0
   def reset(self, clues: set[str]):
-    self.model = GameModel("data/words.txt", 6)
+    self.model = GameModel("data/words.txt", 3)
     self.observation = clues
     self.action_space = self.model.words.copy()
     for observation in self.observation:

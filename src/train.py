@@ -22,7 +22,7 @@ def main():
 
     # feed these clues into q learning clue guesser
     # keep track of rewards and metrics
-    avg_reward = Q_learning_main(False, clues=clues)
+    Q_learning_main(True, clues=clues)
     
 
 if __name__  == "__main__":
