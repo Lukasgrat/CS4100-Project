@@ -33,10 +33,9 @@ class GameModelEnv():
   def __init__(self):
     self.model = GameModel("data/words.txt", 6)
     self.reward = 0
-  def reset(self, clues: list[str]):
+  def reset(self, clues: set[str]):
     self.model = GameModel("data/words.txt", 6)
-    self.observation = []
-    self.observation = ["test1", 'test2']
+    self.observation = clues
     self.action_space = self.model.words.copy()
     for observation in self.observation:
       self.action_space.remove(observation)

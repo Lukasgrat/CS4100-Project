@@ -32,7 +32,7 @@ def hasObs(obs):
 	return hash(tuple(sorted(obs)))
 
 
-def Q_learning(clues : list[str], num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
+def Q_learning(clues : set[str], num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
 	"""
 	Run Q-learning algorithm for a specified number of episodes.
 
@@ -103,7 +103,7 @@ Based on autograder logic used to execute actions using uploaded Q-tables.
 def softmax(x, temp=1.0):
 	e_x = np.exp((x - np.max(x)) / temp)
 	return e_x / e_x.sum(axis=0)
-def conduct_evaluations(clues : list[str]):
+def conduct_evaluations(clues : set[str]):
 	rewards = []
 	# adding metrics to print
 	total_steps = 0
@@ -146,7 +146,7 @@ def conduct_evaluations(clues : list[str]):
 		total_steps += steps
 
 	avg_reward = sum(rewards)/len(rewards)
-def Q_learning_main(train_flag: bool, clues : list[str]):
+def Q_learning_main(train_flag: bool, clues : set[str]):
 	if not train_flag:
 		conduct_evaluations(clues)
 	if train_flag:
