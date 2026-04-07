@@ -36,14 +36,13 @@ def rank_words(target_word, clusters, cluster_id, embeddings_df):
     words = [word for word in list_of_words if word != target_word]
 
     # get the embedding for the target word
-    embedding_vector = embeddings_df[embeddings_df['word'] == target_word].drop(columns='word').values
-    embedding_vector = embedding_vector.reshape(1, -1)
+    embedding_vector = embeddings_df[embeddings_df['word'] == target_word].drop(columns='word').values.flatten()
 
     # get embeddings for the other words
     other_embeddings = embeddings_df[embeddings_df['word'].isin(words)].drop(columns='word').values
 
-    # compute cosine similarity
-    similarities = cosine_similarity(embedding_vector, other_embeddings).flatten()
+    # compute cosine similarity row by row
+    similarities = [cosine_similarity(embedding_vector, emb) for emb in other_embeddings]
 
     # rank words by similarity
     ranked_words = [word for _, word in sorted(zip(similarities, words), reverse=True)]
