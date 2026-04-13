@@ -81,7 +81,8 @@ def get_clue(target_word, clusters, embeddings):
         return None
 
     ranked_words, similarities = rank_words(target_word, clusters, cluster_id, embeddings)
-    clue = choose_clue(ranked_words, similarities, drop_pct=0.2)
+    # for now, drop 0%
+    clue = choose_clue(ranked_words, similarities, drop_pct=0)
     return clue
 
 # when there are multiple clue givers

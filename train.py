@@ -8,12 +8,12 @@ def main():
     # load clusters.pkl
     print("Reading clusters")
 
+
     clusters = pd.read_pickle("data/cluster.pkl")
     # load word embeddings
     embeddings = pd.read_pickle("data/embeddings.pkl")
-    embeddings = pd.read_pickle("data/embeddings.pkl")
 
-    # if DataFrame, convert
+    # convert embeddings to dict
     if isinstance(embeddings, pd.DataFrame):
         embeddings = {
             row['word']: row.drop('word').values
