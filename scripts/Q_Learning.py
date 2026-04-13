@@ -19,18 +19,18 @@ env = GameModelEnv() # Gym environment already initialized within vis_gym.py
 
 #env.render() # Uncomment to print game state info
 
-def hashObs(obs, embeddings):
+def hashObs(obs, embeddings, clusters):
 	'''
   Idea: Guesses shouldn't have an order, and we need consistency with the list when converting to the tuple, so sorting for the hash solves both
 	
 	'''
 	arr = []
-	for val in obs:
+	for val in sorted(obs):
 		#print("Putting word: " + val)
-		num = embeddings[val]
+		num = find_cluster(val, clusters)
 		#print("Number: " + str(num))
 		arr.append(num)
-	return hash(arr.sort)
+	return hash(tuple(arr))
 def hashAction(action, env : GameModelEnv):
 	for x in range(0, len(env.model.words)):
 		if(env.model.words[x] == action):
@@ -66,7 +66,7 @@ def Q_learning(clusters, embeddings, num_episodes=10000, gamma=0.9, epsilon=1, d
 		current_Observation = env.start_guessing(clues)
 
 		total_reward = 0
-		hashed_state = hashObs(current_Observation, embeddings)
+		hashed_state = hashObs(current_Observation, embeddings, clusters)
 		if hashed_state not in Q_table:
 			Q_table[hashed_state] = np.zeros(len(env.action_space))
 			updateNumber_Table[hashed_state] = np.zeros(len(env.action_space))
@@ -97,7 +97,7 @@ def Q_learning(clusters, embeddings, num_episodes=10000, gamma=0.9, epsilon=1, d
 Specify number of episodes and decay rate for training and evaluation.
 '''
 
-num_episodes = 2000
+num_episodes = 10000
 decay_rate = 0.999999
 
 
@@ -126,7 +126,7 @@ def conduct_evaluations(clusters, embeddings):
 		clues = get_n_clues(answer, clusters, 2, embeddings)
 		current_Observation = env.start_guessing(clues)
 		total_reward = 0
-		hashed_state = hashObs(current_Observation, embeddings)
+		hashed_state = hashObs(current_Observation, embeddings, clusters)
 		try:
 			action = np.random.choice(env.action_space, p=softmax(Q_table[hashed_state]))  # Select action using softmax over Q-values
 			actions += 1
@@ -134,8 +134,14 @@ def conduct_evaluations(clusters, embeddings):
 			action = np.random.choice(env.action_space)  # Fallback to random action if state not in Q-table
 			random_actions += 1
 			new_states.add(hashed_state)
+		print("Guessing with action " + str(action) + " actual word is " + env.model.answer)
 		reward = env.step(action)
-		#print("Guessing with action " + str(action) + " actual word is " + env.model.answer)
+		if(reward == 50):
+			print("Guess succeeded!")
+		else:
+			print("Guess failed...")
+		if(ep_number == 100):
+			input()
 		total_reward += reward
 
 		rewards.append(total_reward)

@@ -90,6 +90,6 @@ def get_n_clues(target_word, clusters, n, embeddings):
     clues = []
     for i in range(n):
         clues.append(get_clue(target_word, clusters, embeddings))
-    print("Obtained clues: ", clues)
+    #print("Obtained clues: ", clues)
     # return no duplicates
     return set(clues)

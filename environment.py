@@ -2,11 +2,13 @@ import random
 
 
 class GameModel():
-  def __init__(self, filename, players = 6):
+  def __init__(self, filename, removeFileName, players = 6):
     with open(filename, "r") as file:
       output: str = file.read()
       self.words = output.split('\n')
+    
     self.answer = random.choice(self.words)
+
   def makeHint(self, guess):
     if(guess in self.words):
       self.hints.append(guess)
@@ -27,10 +29,10 @@ class GameModel():
 
 class GameModelEnv():
   def __init__(self):
-    self.model = GameModel("data/words.txt", 3)
+    self.model = GameModel("data/words.txt", "data/noise_words.txt", 3)
     self.reward = 0
   def reset(self):
-    self.model = GameModel("data/words.txt", 3)
+    self.model = GameModel("data/words.txt", "data/noise_words.txt", 3)
     return self.model.answer
   def start_guessing(self, clues: set[str]):
     self.observation = clues
@@ -49,7 +51,7 @@ class GameModelEnv():
     return self.model.words
 
 def humanController(playerCount : int = 6):
-  model : GameModel = GameModel("data/words.txt", playerCount)
+  model : GameModel = GameModel("data/words.txt", "data/noise_words.txt", playerCount)
   print("The word is: ", model.answer)
   for x in range(1, playerCount):
     while(True):
