@@ -10,7 +10,11 @@ def main():
 
     # load word embeddings
     embeddings = pd.read_pickle("data/embeddings.pkl")
-
+    if isinstance(embeddings, pd.DataFrame):
+            embeddings = {
+                row['word']: row.drop('word').values
+                for _, row in embeddings.iterrows()
+            }
     # randomly choose a word from words.txt
     with open("data/words.txt", "r") as f:
         words = f.read().splitlines()
@@ -18,11 +22,10 @@ def main():
 
     # get n amount of clues (set) from the clue givers
     # assume 2 clue givers for now
-    clues = get_n_clues(target_word, clusters, 2, embeddings)
 
     # feed these clues into q learning clue guesser
     # keep track of rewards and metrics
-    avg_reward = Q_learning_main(False, clues)
+    avg_reward = Q_learning_main(False, clusters, embeddings)
     print("Ending evaluation with reward: " + str(avg_reward))
 
 if __name__  == "__main__":

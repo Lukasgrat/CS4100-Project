@@ -41,7 +41,7 @@ class GameModelEnv():
 
   def step(self, action):
     if(self.model.guess(action)):
-      return 10000
+      return 50
     else:
       return -10
 

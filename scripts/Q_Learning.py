@@ -19,25 +19,24 @@ env = GameModelEnv() # Gym environment already initialized within vis_gym.py
 
 #env.render() # Uncomment to print game state info
 
-clusters = pd.read_pickle("data/cluster.pkl")
-def hashObs(obs):
+def hashObs(obs, embeddings):
 	'''
   Idea: Guesses shouldn't have an order, and we need consistency with the list when converting to the tuple, so sorting for the hash solves both
 	
 	'''
 	arr = []
 	for val in obs:
-		print("Putting word: " + val)
-		num = find_cluster(val, clusters)
-		print("Number: " + str(num))
+		#print("Putting word: " + val)
+		num = embeddings[val]
+		#print("Number: " + str(num))
 		arr.append(num)
-	return hash(tuple(sorted(arr)))
+	return hash(arr.sort)
 def hashAction(action, env : GameModelEnv):
 	for x in range(0, len(env.model.words)):
 		if(env.model.words[x] == action):
 			return x
 	return -1
-def Q_learning(clues : set[str], embeddings, num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
+def Q_learning(clusters, embeddings, num_episodes=10000, gamma=0.9, epsilon=1, decay_rate=0.999):
 	"""
 	Run Q-learning algorithm for a specified number of episodes.
 
@@ -59,7 +58,7 @@ def Q_learning(clues : set[str], embeddings, num_episodes=10000, gamma=0.9, epsi
 	cur_epsilon = epsilon
 	corret_guesses = 0
 	for iteration in range(0, num_episodes):
-		#print("Running episode: " +  str(iteration))
+		print("Running episode: " +  str(iteration))
 		#Reset for the next run
 		in_completion_state = False
 		answer = env.reset()
@@ -67,7 +66,7 @@ def Q_learning(clues : set[str], embeddings, num_episodes=10000, gamma=0.9, epsi
 		current_Observation = env.start_guessing(clues)
 
 		total_reward = 0
-		hashed_state = hashObs(current_Observation)
+		hashed_state = hashObs(current_Observation, embeddings)
 		if hashed_state not in Q_table:
 			Q_table[hashed_state] = np.zeros(len(env.action_space))
 			updateNumber_Table[hashed_state] = np.zeros(len(env.action_space))
@@ -77,8 +76,8 @@ def Q_learning(clues : set[str], embeddings, num_episodes=10000, gamma=0.9, epsi
 			action = random.choice(env.action_space)
 		new_reward = env.step(action)
 		if(new_reward > 0):
-			print("correct guess number: " + str(corret_guesses) + " with word" + action)
-			print("sending correct to " + str(hashed_state))
+			#print("correct guess number: " + str(corret_guesses) + " with word" + action)
+			#print("sending correct to " + str(hashed_state))
 			corret_guesses += 1
 		total_reward += new_reward
 		η = 1 / (1 + updateNumber_Table[hashed_state][hashAction(action, env)])
@@ -98,7 +97,7 @@ def Q_learning(clues : set[str], embeddings, num_episodes=10000, gamma=0.9, epsi
 Specify number of episodes and decay rate for training and evaluation.
 '''
 
-num_episodes = 10000
+num_episodes = 2000
 decay_rate = 0.999999
 
 
@@ -121,13 +120,13 @@ def conduct_evaluations(clusters, embeddings):
 	input(f"\n{BOLD}Currently loading Q-table from "+filename+f"{RESET}.  \n\nPress Enter to confirm, or Ctrl+C to cancel and load a different Q-table file.\n(set num_episodes and decay_rate in Q_learning.py).")
 	Q_table = np.load(filename, allow_pickle=True)
 
-	EVAL_EPISODE_COUNT = 100000
+	EVAL_EPISODE_COUNT = 1000
 	for ep_number in tqdm(range(EVAL_EPISODE_COUNT)):
 		answer = env.reset()
 		clues = get_n_clues(answer, clusters, 2, embeddings)
 		current_Observation = env.start_guessing(clues)
 		total_reward = 0
-		hashed_state = hashObs(current_Observation)
+		hashed_state = hashObs(current_Observation, embeddings)
 		try:
 			action = np.random.choice(env.action_space, p=softmax(Q_table[hashed_state]))  # Select action using softmax over Q-values
 			actions += 1
@@ -141,7 +140,26 @@ def conduct_evaluations(clusters, embeddings):
 
 		rewards.append(total_reward)
 
-	avg_reward = sum(rewards)/len(rewards)
+	avg_reward = sum(rewards)/len(rewards)	# plotting all the rewards
+	plt.figure(figsize=(10, 6))
+	# AI USAGE: the initial reward graph was super messy and it was very hard to interpret so
+	# AI suggsted using the alpha parameter to smooth things over and to take a moving average
+	# instead to make the line plot look cleaner
+	plt.figure(figsize=(10, 6))
+	plt.plot(rewards, alpha=0.3, label="Episode Reward")
+	# moving average
+	# change window size for every change in training episodes
+	window = 100000
+	if len(rewards) >= window:
+		avg = np.convolve(rewards, np.ones(window) / window, mode='valid')
+		plt.plot(avg, linewidth=2, label="Moving Avg.")
+	plt.title("Rewards per Episode")
+	plt.xlabel("Episode")
+	plt.ylabel("Reward")
+	plt.legend()
+	plt.grid(alpha=0.3)
+	plt.savefig("q_learning_rewards.png", dpi=300)
+	plt.show()
 	return avg_reward
 def Q_learning_main(train_flag: bool, clusters, embeddings):
 	if not train_flag:
