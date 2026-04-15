@@ -72,26 +72,21 @@ def choose_clue(ranked_words, similarities, drop_pct):
     return clue
 
 # main function to get the clue for a given word
-def get_clue(target_word, clusters, embeddings):
+def get_clue(target_word, clusters, embeddings, drop_pct=0.0):
     cluster_id = find_cluster(target_word, clusters)
     if cluster_id is None:
-        # TODO
-        print("Invalid cluster_id")
-        # might want to make this return a default clue later
+        # print("Invalid cluster_id")
         return None
 
     ranked_words, similarities = rank_words(target_word, clusters, cluster_id, embeddings)
-    # for now, drop 0%
-    clue = choose_clue(ranked_words, similarities, drop_pct=0)
+    clue = choose_clue(ranked_words, similarities, drop_pct=drop_pct)
     return clue
 
-# when there are multiple clue givers
-def get_n_clues(target_word, clusters, n, embeddings):
+def get_n_clues(target_word, clusters, n, embeddings, drop_pct=0.0):
     clues = []
     for i in range(n):
-        clue = get_clue(target_word, clusters, embeddings)
+        clue = get_clue(target_word, clusters, embeddings, drop_pct=drop_pct)
         if clue is not None:
             clues.append(clue)
-    print("Obtained clues: ", clues)
-    # return no duplicates
+    # print("Obtained clues: ", clues)
     return set(clues)

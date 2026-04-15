@@ -1,5 +1,7 @@
+import sys
 import pandas as pd
 from scripts.Q_Learning import Q_learning_main
+from scripts.DQN_Learning import DQN_learning_main
 from scripts.choose_clues import get_n_clues
 import numpy as np
 
@@ -23,10 +25,18 @@ def main():
     # get n amount of clues (set) from the clue givers
     # assume 2 clue givers for now
 
-    # feed these clues into q learning clue guesser
+    # feed these clues into clue guesser
     # keep track of rewards and metrics
-    avg_reward = Q_learning_main(False, clusters, embeddings)
-    print("Ending evaluation with reward: " + str(avg_reward))
+    use_dqn = 'dqn' in sys.argv
+    train = 'train' in sys.argv
+
+    if use_dqn:
+        avg_reward = DQN_learning_main(train, clusters, embeddings)
+    else:
+        avg_reward = Q_learning_main(train, clusters, embeddings)
+
+    if avg_reward is not None:
+        print("Ending evaluation with reward: " + str(avg_reward))
 
 if __name__  == "__main__":
     main()

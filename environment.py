@@ -42,11 +42,15 @@ class GameModelEnv():
         self.action_space.remove(observation)
     return self.observation
 
-  def step(self, action):
-    if(self.model.guess(action)):
+  def step(self, action, clusters=None):
+    if self.model.guess(action):
       return 50
-    else:
-      return -10
+    if clusters is not None:
+      # partial reward for guessing a word in the same cluster as the answer
+      from scripts.choose_clues import find_cluster
+      if find_cluster(action, clusters) == find_cluster(self.model.answer, clusters):
+        return 5
+    return -10
 
   def actionMap(self):
     return self.model.words
