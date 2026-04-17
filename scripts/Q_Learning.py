@@ -98,7 +98,7 @@ Specify number of episodes and decay rate for training and evaluation.
 '''
 
 num_episodes = 10000
-decay_rate = 0.999999
+decay_rate = 0.9999995
 
 
 def softmax(x, temp=1.0):
@@ -116,7 +116,7 @@ def conduct_evaluations(clusters, embeddings):
 
 
 
-	filename = 'Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle'
+	filename = "Q_Tables/" + 'Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle'
 	input(f"\n{BOLD}Currently loading Q-table from "+filename+f"{RESET}.  \n\nPress Enter to confirm, or Ctrl+C to cancel and load a different Q-table file.\n(set num_episodes and decay_rate in Q_learning.py).")
 	Q_table = np.load(filename, allow_pickle=True)
 
@@ -164,7 +164,7 @@ def conduct_evaluations(clusters, embeddings):
 	plt.ylabel("Reward")
 	plt.legend()
 	plt.grid(alpha=0.3)
-	plt.savefig("q_learning_rewards.png", dpi=300)
+	plt.savefig("Q_Tables/q_learning_rewards.png", dpi=300)
 	plt.show()
 	return avg_reward
 def Q_learning_main(train_flag: bool, clusters, embeddings):
@@ -174,5 +174,5 @@ def Q_learning_main(train_flag: bool, clusters, embeddings):
 		print("Beginning Q-learning")
 		Q_table = Q_learning(clusters, embeddings, num_episodes=num_episodes, gamma=0.9, epsilon=1, decay_rate=decay_rate) # Run Q-learning
 		# Save the Q-table dict to a file
-		with open('Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle', 'wb') as handle:
+		with open('Q_Tables/Q_table_'+str(num_episodes)+'_'+str(decay_rate)+'.pickle', 'wb') as handle:
 			pickle.dump(Q_table, handle, protocol=pickle.HIGHEST_PROTOCOL)
